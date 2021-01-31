@@ -1,0 +1,4 @@
+I should create a script that will install all the dependant packages.txt
+and it should also run go module command 
+
+go get -u github.com/go-chi/chi
