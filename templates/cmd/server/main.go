@@ -6,10 +6,10 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
-	"github.com/repo/package/pkg/app"
-	"github.com/repo/package/pkg/repository"
-	"github.com/repo/package/pkg/service"
-	"github.com/repo/package/pkg/shared"
+	"github.com/repo/module/pkg/app"
+	"github.com/repo/module/pkg/repository"
+	"github.com/repo/module/pkg/service"
+	"github.com/repo/module/pkg/shared"
 	"github.com/tkanos/gonfig"
 )
 

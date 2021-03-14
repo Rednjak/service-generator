@@ -1,6 +1,6 @@
 package app
 
-import "github.com/repo/package/pkg/repository"
+import "github.com/repo/module/pkg/repository"
 
 // ResourcePayload is esentially a DTO because we don't want to use the database models as the source for our communication with the client.
 // We could argue that this is premature optimization since the microservice shouldn't be too big and the database model probably won't get polluted with to many annotations

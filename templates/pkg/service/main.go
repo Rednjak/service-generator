@@ -1,6 +1,6 @@
 package service
 
-import "github.com/repo/package/pkg/repository"
+import "github.com/repo/module/pkg/repository"
 
 // Holds all the dependencies that are being used by the servie layer
 type service struct {

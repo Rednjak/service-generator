@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/repo/package/pkg/repository"
+	"github.com/repo/module/pkg/repository"
 )
 
 // Service interface is used to define the available methods

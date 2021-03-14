@@ -1,4 +1,4 @@
-module github.com/repo/package
+module github.com/repo/module
 
 go 1.15
 

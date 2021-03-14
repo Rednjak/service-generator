@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/repo/package/pkg/service"
+	"github.com/repo/module/pkg/service"
 
 	"github.com/go-chi/chi"
 )
