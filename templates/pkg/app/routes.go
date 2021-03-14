@@ -12,13 +12,14 @@ func (s *server) routes() {
 	// through ctx.Done() that the request has timed out and further
 	// processing should be stopped.
 	s.router.Use(middleware.Timeout(10 * time.Second))
-	s.router.Route("/v1/resources", func(chi.Router) {
-		s.router.Get("/", s.getAllResources())
-		s.router.Route("/{resourceID}", func(chi.Router) {
-			s.router.Post("/", s.createResource())
-			s.router.Get("/", s.getResource())
-			s.router.Put("/", s.updateResource())
-			s.router.Delete("/", s.deleteResource())
+
+	s.router.Route("/v1/resources", func(r chi.Router) {
+		r.Get("/", s.getAllResources())
+		r.Post("/", s.createResource())
+		r.Route("/{resourceID}", func(r chi.Router) {
+			r.Get("/", s.getResource())
+			r.Put("/", s.updateResource())
+			r.Delete("/", s.deleteResource())
 		})
 	})
 }

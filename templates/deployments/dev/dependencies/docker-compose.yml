@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  database:
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    restart: always
+    environment:
+      MYSQL_DATABASE: dev
+      MYSQL_USER: admin
+      MYSQL_ROOT_USER: root
+      MYSQL_PASSWORD: admin
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ../../migrations/development/:/docker-entrypoint-initdb.d/
+      - ./custom_mysql_config.cnf:/etc/mysql/conf.d/custom.cnf
+      - dev_database:/var/lib/mysql
+volumes:
+  dev_database:

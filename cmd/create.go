@@ -2,24 +2,27 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/otiai10/copy"
 	"github.com/spf13/cobra"
 )
 
 var sourcePath = fmt.Sprintf("%s/go/src/%s", os.Getenv("HOME"), "github.com/Rednjak/service-generator")
+var moduleName = ""
 
 // createCmd represents the create command
 var createCmd = &cobra.Command{
 	Use:   "create",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Create a new project with a predefined layout",
+	Long: `
+	Create a new project with a predefined layout. 
+	You need to provide the name of the project as an argument
+	and the module name as a flag`,
+	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		create(args[0])
 	},
@@ -27,72 +30,69 @@ to quickly create a Cobra application.`,
 
 func init() {
 	rootCmd.AddCommand(createCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// createCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	createCmd.Flags().StringVarP(&moduleName, "module", "m", "", "Golang module name")
+	createCmd.MarkFlagRequired("module")
 }
 
 func create(serviceName string) {
-	fmt.Println(serviceName)
 	currentPath, err := os.Getwd()
-	check(err)
-	// if err != nil {
-	// 	return fmt.Errorf("Issues getting current path. Trace: %w", err)
-	// }
+	checkErr(err)
 
 	// Create the service directory
 	directory := fmt.Sprintf("%s/%s", currentPath, serviceName)
 	err = os.Mkdir(directory, 0755)
-	check(err)
+	checkErr(err)
 
-	// fmt.Println(sourcePath)
-	// fmt.Println(getExecPath())
-	// fmt.Println(os.Getenv("HOME"))
-	// fmt.Println(sourcePath)
-	// createFiles(directory)
-
+	// Copy the service tempalte
 	err = copy.Copy(sourcePath+"/templates", directory)
-	check(err)
+	checkErr(err)
+
+	// Update the module placeholders with the provided module name
+	err = filepath.Walk(directory, visit)
+	checkErr(err)
 }
 
-// func createFiles(directory string) error {
-// 	files, err := ioutil.ReadDir(sourcePath + "/templates")
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
+func checkErr(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
 
-// 	for _, file := range files {
-// 		fmt.Println(file.Name())
-// 		destination, err := os.Create(directory + "/" + file.Name())
-// 		if err != nil {
-// 			check(err)
-// 		}
+func match(fileName string) bool {
+	if fileName == "go.mod" {
+		return true
+	}
 
-// 		source, err := os.Open(sourcePath + "/templates/" + file.Name())
-// 		if err != nil {
-// 			check(err)
-// 		}
-// 		defer source.Close()
+	matched, err := filepath.Match("*.go", fileName)
+	if err != nil {
+		panic(err)
+	}
 
-// 		defer destination.Close()
-// 		_, err = io.Copy(destination, source)
-// 		check(err)
-// 	}
+	return matched
+}
 
-// 	return nil
-// }
+func visit(path string, fi os.FileInfo, err error) error {
+	if err != nil {
+		return err
+	}
 
-// func getExecPath() string {
-// 	fmt.Println("getExecPath")
-// 	ex, err := os.Executable()
-// 	check(err)
-// 	fmt.Println(filepath.Dir(ex))
-// 	return filepath.Dir(ex)
-// }
+	if !!fi.IsDir() {
+		return nil
+	}
+
+	matched := match(fi.Name())
+	if matched {
+		read, err := ioutil.ReadFile(path)
+		if err != nil {
+			panic(err)
+		}
+
+		newContents := strings.Replace(string(read), "github.com/repo/module", moduleName, -1)
+		err = ioutil.WriteFile(path, []byte(newContents), 0)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	return nil
+}
