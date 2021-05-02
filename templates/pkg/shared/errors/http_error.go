@@ -1,8 +1,6 @@
-package app
+package errors
 
 import (
-	"fmt"
-
 	"github.com/google/jsonapi"
 )
 
@@ -16,5 +14,5 @@ type ClientError struct {
 }
 
 func (err ClientError) Error() string {
-	return fmt.Sprintf("There was a ClientError")
+	return "There was a ClientError"
 }

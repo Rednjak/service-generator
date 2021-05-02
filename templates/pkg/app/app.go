@@ -1,29 +1,23 @@
 package app
 
 import (
-	"log"
-	"net/http"
-
-	"github.com/repo/module/pkg/service"
-
-	"github.com/go-chi/chi"
+	"zlatane/pkg/app/command"
+	"zlatane/pkg/app/query"
 )
 
-type server struct {
-	router  *chi.Mux
-	Service service.Service
+type Application struct {
+	Commands Commands
+	Queries  Queries
 }
 
-// NewServer will initialize all the dependencies and return a server struct which can be used to start the server
-func NewServer() server {
-	s := server{}
-	s.router = chi.NewRouter()
-	s.routes()
-	return s
+// Commands are used to make changes in the system
+type Commands struct {
+	CancelResource command.CancelResourceHandler
+	CreateResource command.CreateResourceHandler
 }
 
-// StartServer starts the server
-func (s *server) StartServer() {
-	log.Println("Starting server on port: 8080")
-	log.Fatal(http.ListenAndServe(":8080", s.router))
+// Queries are used to read the data from the system
+type Queries struct {
+	AllResources query.AllResourcesHandler
+	GetResource  query.GetResourceHandler
 }

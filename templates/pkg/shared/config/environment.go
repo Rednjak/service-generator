@@ -1,4 +1,4 @@
-package shared
+package config
 
 type Configuration struct {
 	DatabaseDriver   string `env:"DATABASE_DRIVER"`
@@ -8,4 +8,5 @@ type Configuration struct {
 	DatabaseUser     string `env:"DATABASE_USER"`
 	Environment      string `env:"ENVIRONMENT"`
 	ServerPort       string `env:"SERVER_PORT"`
+	Server           string `env:"SERVER"`
 }

@@ -1,4 +1,4 @@
-package app
+package serializer
 
 import (
 	"log"
@@ -8,26 +8,17 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (s *server) payloadSerializer(r *http.Request, object interface{}) error {
-	if err := jsonapi.UnmarshalPayload(r.Body, object); err != nil {
-		return errors.Wrap(err, "Method: payloadSerializer")
-	}
-
-	return nil
-}
-
-func (s *server) successSerializer(w http.ResponseWriter, data interface{}) {
+func SerializeSuccess(w http.ResponseWriter, data interface{}) {
 	w.Header().Add("Content-Type", jsonapi.MediaType)
 
 	if err := jsonapi.MarshalPayload(w, data); err != nil {
-		s.errorSerializer(w, errors.Wrap(err, "Method: jsonapi.MarshalPayload"))
+		SerializeError(w, errors.Wrap(err, "Method: jsonapi.MarshalPayload"))
 	}
 }
 
-func (s *server) errorSerializer(w http.ResponseWriter, err error) {
-
+func SerializeError(w http.ResponseWriter, err error) {
 	switch e := errors.Cause(err).(type) {
-	case ClientError:
+	case custom_errors.ClientError:
 		// In case the status code is not provided we default to 400
 		if e.StatusCode == 0 {
 			w.WriteHeader(400)
