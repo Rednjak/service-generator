@@ -2,6 +2,7 @@ package serializer
 
 import (
 	"log"
+	custom_errors "module_placeholder/pkg/shared/errors"
 	"net/http"
 
 	"github.com/google/jsonapi"

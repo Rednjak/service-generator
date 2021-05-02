@@ -2,6 +2,7 @@ package command
 
 import (
 	"context"
+	domain "module_placeholder/pkg/domain/resource"
 )
 
 type CreateResourceHandler struct {

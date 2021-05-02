@@ -3,6 +3,8 @@ package adapters
 import (
 	"database/sql"
 	"log"
+	"module_placeholder/pkg/app/query"
+	domain "module_placeholder/pkg/domain/resource"
 	"time"
 
 	"github.com/pkg/errors"

@@ -1,4 +1,4 @@
-module github.com/repo/module
+module module_placeholder
 
 go 1.15
 

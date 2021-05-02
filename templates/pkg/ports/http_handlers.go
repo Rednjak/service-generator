@@ -1,6 +1,11 @@
 package ports
 
 import (
+	"module_placeholder/pkg/app"
+	"module_placeholder/pkg/app/query"
+	domain "module_placeholder/pkg/domain/resource"
+	"module_placeholder/pkg/shared/parser"
+	"module_placeholder/pkg/shared/serializer"
 	"net/http"
 
 	"github.com/go-chi/chi"

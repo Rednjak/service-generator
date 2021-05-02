@@ -9,12 +9,11 @@ import (
 	"github.com/go-chi/chi/middleware"
 )
 
-func RunHTTPServerOnAddr(port string, addRoutes func(router chi.Router) http.Handler) {
+func RunHTTPServerOnAddr(port string, addRoutes func(r chi.Router) chi.Router) {
 	rootRouter := chi.NewRouter()
 	addMiddleware(rootRouter)
 
 	apiRouter := chi.NewRouter()
-	addRoutes(apiRouter)
 	rootRouter.Mount("/api", addRoutes(apiRouter))
 
 	log.Println(fmt.Sprintf("Starting server on port: %s", port))

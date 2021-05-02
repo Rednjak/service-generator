@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	custom_errors "module_placeholder/pkg/shared/errors"
 
 	"github.com/google/jsonapi"
 )

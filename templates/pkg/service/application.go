@@ -3,6 +3,11 @@ package service
 import (
 	"context"
 	"fmt"
+	"module_placeholder/pkg/adapters"
+	"module_placeholder/pkg/app"
+	"module_placeholder/pkg/app/command"
+	"module_placeholder/pkg/app/query"
+	"module_placeholder/pkg/shared/config"
 )
 
 func NewApplication(context context.Context, cfg *config.Configuration) app.Application {

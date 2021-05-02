@@ -87,7 +87,8 @@ func visit(path string, fi os.FileInfo, err error) error {
 			panic(err)
 		}
 
-		newContents := strings.Replace(string(read), "github.com/repo/module", moduleName, -1)
+		// newContents := strings.Replace(string(read), "github.com/repo/module", moduleName, -1)
+		newContents := strings.Replace(string(read), "module_placeholder", moduleName, -1)
 		err = ioutil.WriteFile(path, []byte(newContents), 0)
 		if err != nil {
 			panic(err)

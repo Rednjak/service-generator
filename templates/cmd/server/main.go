@@ -1,48 +1,48 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"module_placeholder/pkg/ports"
+	"module_placeholder/pkg/service"
+	"module_placeholder/pkg/shared/config"
+	"module_placeholder/pkg/shared/server"
+	"strings"
 
+	"github.com/go-chi/chi"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
-	"github.com/repo/module/pkg/app"
-	"github.com/repo/module/pkg/repository"
-	"github.com/repo/module/pkg/service"
-	"github.com/repo/module/pkg/shared"
 	"github.com/tkanos/gonfig"
 )
 
 func main() {
 	cfg := initConfig()
-	storage := initStorage(cfg)
-	service := service.SetupService(storage)
-	server := app.NewServer()
-	server.Service = service
+	context := context.Background()
+	application := service.NewApplication(context, cfg)
 
-	server.StartServer()
-}
+	serverType := strings.ToLower(cfg.Server)
+	switch serverType {
+	case "http":
+		server.RunHTTPServerOnAddr(cfg.ServerPort, func(r chi.Router) chi.Router {
+			return ports.InitializeRoutes(
+				ports.NewHttpServer(application),
+				r,
+			)
+		})
 
-func initStorage(cfg *shared.Configuration) repository.Storage {
-	storage := repository.NewStorage()
-	defer storage.CloseConnection()
-
-	connection := fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true", cfg.DatabaseUser, cfg.DatabasePassword, cfg.DatabaseIP, cfg.DatabaseScheme)
-	err := storage.InitMySQLConn(cfg.DatabaseDriver, connection)
-	if err != nil {
-		log.Fatal("issue connecting to the database", err)
+	default:
+		panic(fmt.Sprintf("server type: %s is not supported", serverType))
 	}
-
-	return storage
 }
 
-func initConfig() *shared.Configuration {
+func initConfig() *config.Configuration {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("error loading .env file")
+		log.Fatal("error loading .env file. error:", err)
 	}
 
-	cfg := &shared.Configuration{}
+	cfg := &config.Configuration{}
 	gonfig.GetConf("", cfg)
 
 	return cfg

@@ -1,8 +1,8 @@
 package app
 
 import (
-	"zlatane/pkg/app/command"
-	"zlatane/pkg/app/query"
+	"module_placeholder/pkg/app/command"
+	"module_placeholder/pkg/app/query"
 )
 
 type Application struct {
