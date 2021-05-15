@@ -44,7 +44,7 @@ func create(serviceName string) {
 	checkErr(err)
 
 	// Walk through the embeded files and create them in the service directory
-	err = fs.WalkDir(Template, "templates", func(path string, de fs.DirEntry, err error) error {
+	err = fs.WalkDir(Template, ".", func(path string, de fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -53,12 +53,13 @@ func create(serviceName string) {
 			return nil
 		}
 
-		fileContent, err := fs.ReadFile(Template, de.Name())
+		fileContent, err := fs.ReadFile(Template, path)
 		if err != nil {
 			panic(err)
 		}
 
-		filePath := fmt.Sprintf("%s/%s", directory, path)
+		// We want the files to be on the root directory and not under templates
+		filePath := fmt.Sprintf("%s/%s", directory, strings.Replace(path, "templates/", "", 1))
 		createDirectoryIfMissing(filePath, de)
 
 		matched := matchGoFiles(de.Name())
