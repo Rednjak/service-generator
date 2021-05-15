@@ -4,7 +4,6 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -54,7 +53,7 @@ func create(serviceName string) {
 			return nil
 		}
 
-		fileContent, err := ioutil.ReadFile(path)
+		fileContent, err := fs.ReadFile(Template, de.Name())
 		if err != nil {
 			panic(err)
 		}
