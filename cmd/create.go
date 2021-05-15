@@ -1,17 +1,18 @@
 package cmd
 
 import (
+	"embed"
 	"fmt"
+	"io/fs"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/otiai10/copy"
 	"github.com/spf13/cobra"
 )
 
-var sourcePath = fmt.Sprintf("%s/go/src/%s", os.Getenv("HOME"), "github.com/Rednjak/service-generator")
+var Template embed.FS
 var moduleName = ""
 
 // createCmd represents the create command
@@ -43,12 +44,41 @@ func create(serviceName string) {
 	err = os.Mkdir(directory, 0755)
 	checkErr(err)
 
-	// Copy the service tempalte
-	err = copy.Copy(sourcePath+"/templates", directory)
-	checkErr(err)
+	// Walk through the embeded files and create them in the service directory
+	err = fs.WalkDir(Template, "templates", func(path string, de fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
 
-	// Update the module placeholders with the provided module name
-	err = filepath.Walk(directory, visit)
+		if de.IsDir() {
+			return nil
+		}
+
+		fileContent, err := ioutil.ReadFile(path)
+		if err != nil {
+			panic(err)
+		}
+
+		filePath := fmt.Sprintf("%s/%s", directory, path)
+		createDirectoryIfMissing(filePath, de)
+
+		matched := matchGoFiles(de.Name())
+		if matched {
+			// Update the module_placeholder with the provided module name
+			fileContent = []byte(strings.Replace(string(fileContent), "module_placeholder", moduleName, -1))
+
+			// We needed to rename go.mod and go.sum to be able to embed them
+			if ok := strings.Contains(filePath, "go.mod.template"); ok {
+				filePath = strings.Replace(filePath, "go.mod.template", "go.mod", 1)
+			}
+			if ok := strings.Contains(filePath, "go.sum.template"); ok {
+				filePath = strings.Replace(filePath, "go.sum.template", "go.sum", 1)
+			}
+		}
+
+		createAndWriteToFile(filePath, fileContent)
+		return nil
+	})
 	checkErr(err)
 }
 
@@ -58,8 +88,8 @@ func checkErr(e error) {
 	}
 }
 
-func match(fileName string) bool {
-	if fileName == "go.mod" {
+func matchGoFiles(fileName string) bool {
+	if fileName == "go.mod.template" || fileName == "go.sum.template" {
 		return true
 	}
 
@@ -71,29 +101,18 @@ func match(fileName string) bool {
 	return matched
 }
 
-func visit(path string, fi os.FileInfo, err error) error {
+func createDirectoryIfMissing(filePath string, de fs.DirEntry) {
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		os.MkdirAll(strings.Replace(filePath, de.Name(), "", 1), 0755)
+	}
+}
+
+func createAndWriteToFile(filePath string, content []byte) {
+	f, err := os.Create(filePath)
 	if err != nil {
-		return err
+		panic(err)
 	}
 
-	if !!fi.IsDir() {
-		return nil
-	}
-
-	matched := match(fi.Name())
-	if matched {
-		read, err := ioutil.ReadFile(path)
-		if err != nil {
-			panic(err)
-		}
-
-		// newContents := strings.Replace(string(read), "github.com/repo/module", moduleName, -1)
-		newContents := strings.Replace(string(read), "module_placeholder", moduleName, -1)
-		err = ioutil.WriteFile(path, []byte(newContents), 0)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	return nil
+	f.Write(content)
+	f.Close()
 }
